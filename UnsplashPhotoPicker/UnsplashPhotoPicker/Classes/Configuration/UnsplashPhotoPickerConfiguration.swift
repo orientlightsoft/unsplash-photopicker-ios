@@ -19,9 +19,19 @@ public struct UnsplashPhotoPickerConfiguration {
 
     /// A search query. When set, hides the search bar and shows results instead of the editorial photos.
     public var query: String?
+    
+    public var prefixQuery: String?
 
     /// Controls whether the picker allows multiple or single selection.
     public var allowsMultipleSelection = false
+    
+    public var allowCancelSelection = true
+    
+    public var showNavigationTitle = true
+    
+    /// Checkmark image
+    public var checkmarkTintColor: UIColor?
+    
 
     /// The memory capacity used by the cache.
     public var memoryCapacity = defaultMemoryCapacity
@@ -55,12 +65,16 @@ public struct UnsplashPhotoPickerConfiguration {
                 secretKey: String,
                 query: String? = nil,
                 allowsMultipleSelection: Bool = false,
+                allowCancelSelection: Bool = true,
+                showNavigationTitle: Bool = true,
                 memoryCapacity: Int = defaultMemoryCapacity,
                 diskCapacity: Int = defaultDiskCapacity) {
         self.accessKey = accessKey
         self.secretKey = secretKey
         self.query = query
         self.allowsMultipleSelection = allowsMultipleSelection
+        self.allowCancelSelection = allowCancelSelection
+        self.showNavigationTitle = showNavigationTitle
         self.memoryCapacity = memoryCapacity
         self.diskCapacity = diskCapacity
     }

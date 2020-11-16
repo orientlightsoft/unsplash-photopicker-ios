@@ -39,7 +39,7 @@ class CheckmarkView: UIView {
 
     private func postInit() {
         guard let shapeLayer = layer as? CAShapeLayer else { return }
-        shapeLayer.fillColor = tintColor.cgColor
+        shapeLayer.fillColor = Configuration.shared.checkmarkTintColor?.cgColor ?? tintColor.cgColor
         shapeLayer.shadowOffset = CGSize(width: 0, height: 0)
         shapeLayer.shadowRadius = 1
         shapeLayer.shadowOpacity = 0.25

@@ -56,8 +56,8 @@ class ViewController: UIViewController {
     @IBAction func presentUnsplashPhotoPicker(sender: AnyObject?) {
         let allowsMultipleSelection = selectionTypeSegmentedControl.selectedSegmentIndex == SelectionType.multiple.rawValue
         let configuration = UnsplashPhotoPickerConfiguration(
-            accessKey: "<YOUR_ACCESS_KEY>",
-            secretKey: "<YOUR_SECRET_KEY>",
+            accessKey: "7UdgxEb4piBTK1wmDD-mXt43rH0blzgnsT3ESxelpTc",
+            secretKey: "_9mp_nCVnzVFT9hZiTLsaSmqzvHPgx2PPi04mnA42t8",
             query: searchQueryTextField.text,
             allowsMultipleSelection: allowsMultipleSelection
         )
