@@ -14,11 +14,11 @@ extension KeyedDecodingContainer {
         return UIColor(hexString: hexColor)
     }
 
-    func decode(_ type: [UnsplashPhoto.URLKind: URL].Type, forKey key: Key) throws -> [UnsplashPhoto.URLKind: URL] {
+    func decode(_ type: [URLKind: URL].Type, forKey key: Key) throws -> [URLKind: URL] {
         let urlsDictionary = try self.decode([String: String].self, forKey: key)
-        var result = [UnsplashPhoto.URLKind: URL]()
+        var result = [URLKind: URL]()
         for (key, value) in urlsDictionary {
-            if let kind = UnsplashPhoto.URLKind(rawValue: key),
+            if let kind = URLKind(rawValue: key),
                 let url = URL(string: value) {
                 result[kind] = url
             }

@@ -1,5 +1,5 @@
 //
-//  UnsplashPhotoPickerPreviewViewController.swift
+//  PhotoPickerPreviewViewController.swift
 //  UnsplashPhotoPicker
 //
 //  Created by Bichon, Nicolas on 2018-11-04.
@@ -8,7 +8,7 @@
 
 import UIKit
 
-class UnsplashPhotoPickerPreviewViewController: UIViewController {
+class PhotoPickerPreviewViewController: UIViewController {
 
     private lazy var photoImageView: UIImageView = {
         let imageView = UIImageView()

@@ -7,9 +7,9 @@
 //
 
 import Foundation
-
+private class PhotoPickerBundleLocator {}
 extension String {
     func localized() -> String {
-        return NSLocalizedString(self, tableName: nil, bundle: Bundle(for: UnsplashPhotoPicker.self), comment: "")
+        return NSLocalizedString(self, tableName: nil, bundle: Bundle(for: PhotoPickerBundleLocator.self), comment: "")
     }
 }

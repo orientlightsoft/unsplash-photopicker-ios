@@ -1,28 +1,27 @@
 //
-//  UnsplashPagedRequest.swift
-//  Unsplash
+//  IconfinderPagedRequest.swift
+//  UnsplashPhotoPicker
 //
-//  Created by Olivier Collet on 2017-09-28.
-//  Copyright © 2017 Unsplash. All rights reserved.
+//  Created by Manh Pham on 11/17/20.
 //
 
 import Foundation
 
-class UnsplashPagedRequest: CommonPagedRequest {
+class IconfinderPagedRequest: CommonPagedRequest {
     // MARK: - Prepare the request
     override var apiURL: String {
-        return Configuration.shared.unsplash.apiURL
+        return Configuration.shared.iconfinder.apiURL
     }
     override func prepareHeaders() -> [String: String]? {
         var headers = [String: String]()
-        headers["Authorization"] = "Client-ID \(Configuration.shared.unsplash.accessKey)"
+        headers["Authorization"] = "Bearer \(Configuration.shared.iconfinder.apiKey)"
         return headers
     }
     
     override func prepareParameters() -> [String: Any]? {
         var parameters = super.prepareParameters() ?? [String: Any]()
-        parameters["page"] = cursor.page
-        parameters["per_page"] = cursor.perPage
+        parameters["offset"] = (cursor.page - 1) * cursor.perPage
+        parameters["count"] = cursor.perPage
 
         if let cursorParameters = cursor.parameters {
             for (key, value) in cursorParameters {

@@ -86,7 +86,7 @@ class NetworkRequest: ConcurrentOperation {
         case .path:
             var components = URLComponents(url: url, resolvingAgainstBaseURL: true)!
             components.query = queryParameters(parameters)
-            return URLRequest(url: components.url!, cachePolicy: .reloadIgnoringLocalAndRemoteCacheData, timeoutInterval: timeoutInterval)
+           return URLRequest(url: components.url!, cachePolicy: .reloadIgnoringLocalAndRemoteCacheData, timeoutInterval: timeoutInterval)
         }
     }
 
@@ -119,8 +119,8 @@ class NetworkRequest: ConcurrentOperation {
         request.httpMethod = method.rawValue
 
         let session = URLSession.shared
-        task = session.dataTask(with: request, completionHandler: { (data, response, error) in
-            self.processResponse(response, data: data, error: error)
+        task = session.dataTask(with: request, completionHandler: {[weak self] (data, response, error) in
+            self?.processResponse(response, data: data, error: error)
         })
         task?.resume()
     }

@@ -8,20 +8,50 @@
 
 import Foundation
 
-/// Encapsulates configuration information for the behavior of UnsplashPhotoPicker.
-public struct UnsplashPhotoPickerConfiguration {
-
-    /// Your application’s access key.
-    public var accessKey = ""
-
-    /// Your application’s secret key.
-    public var secretKey = ""
-
+public struct IconfinderConfiguration {
+    
+    public var apiKey: String = ""
     /// A search query. When set, hides the search bar and shows results instead of the editorial photos.
     public var query: String?
     
-    public var prefixQuery: String?
+    let apiURL = "https://api.iconfinder.com/"
+    
+    public init(apiKey: String = "", query: String? = nil) {
+        self.apiKey = apiKey
+        self.query = query
+    }
+}
 
+public struct UnsplashConfiguration {
+    /// Your application’s access key.
+    public var accessKey: String = ""
+
+    /// Your application’s secret key.
+    public var secretKey: String = ""
+    
+    /// A search query. When set, hides the search bar and shows results instead of the editorial photos.
+    public var query: String?
+    
+    /// The Unsplash API url.
+    let apiURL = "https://api.unsplash.com/"
+
+    /// The Unsplash editorial collection id.
+    let editorialCollectionId = "317099"
+
+    public init(accessKey: String = "", secretKey: String = "", query: String? = nil) {
+        self.accessKey = accessKey
+        self.secretKey = secretKey
+        self.query = query
+    }
+}
+
+/// Encapsulates configuration information for the behavior of UnsplashPhotoPicker.
+public struct PhotoPickerConfiguration {
+
+    public var unsplash = UnsplashConfiguration()
+    
+    public var iconfinder = IconfinderConfiguration()
+  
     /// Controls whether the picker allows multiple or single selection.
     public var allowsMultipleSelection = false
     
@@ -45,12 +75,7 @@ public struct UnsplashPhotoPickerConfiguration {
     /// The default disk capacity used by the cache.
     public static let defaultDiskCapacity: Int = ImageCache.diskCapacity
 
-    /// The Unsplash API url.
-    let apiURL = "https://api.unsplash.com/"
-
-    /// The Unsplash editorial collection id.
-    let editorialCollectionId = "317099"
-
+   
     /**
      Initializes an `UnsplashPhotoPickerConfiguration` object with optionally customizable behaviors.
 
@@ -61,17 +86,15 @@ public struct UnsplashPhotoPickerConfiguration {
      - parameter memoryCapacity:          The memory capacity used by the cache.
      - parameter diskCapacity:            The disk capacity used by the cache.
      */
-    public init(accessKey: String,
-                secretKey: String,
-                query: String? = nil,
+    public init(unsplash: UnsplashConfiguration,
+                iconfinder: IconfinderConfiguration,
                 allowsMultipleSelection: Bool = false,
                 allowCancelSelection: Bool = true,
                 showNavigationTitle: Bool = true,
                 memoryCapacity: Int = defaultMemoryCapacity,
                 diskCapacity: Int = defaultDiskCapacity) {
-        self.accessKey = accessKey
-        self.secretKey = secretKey
-        self.query = query
+        self.unsplash = unsplash
+        self.iconfinder = iconfinder
         self.allowsMultipleSelection = allowsMultipleSelection
         self.allowCancelSelection = allowCancelSelection
         self.showNavigationTitle = showNavigationTitle

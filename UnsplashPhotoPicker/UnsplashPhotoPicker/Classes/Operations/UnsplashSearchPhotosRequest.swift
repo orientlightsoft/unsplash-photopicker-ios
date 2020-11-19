@@ -1,5 +1,5 @@
 //
-//  SearchPhotosRequest.swift
+//  UnsplashSearchPhotosRequest.swift
 //  Unsplash
 //
 //  Created by Olivier Collet on 2017-09-27.
@@ -8,15 +8,15 @@
 
 import Foundation
 
-class SearchPhotosRequest: UnsplashPagedRequest {
+class UnsplashSearchPhotosRequest: UnsplashPagedRequest {
 
-    static func cursor(with query: String, page: Int = 1, perPage: Int = 10) -> UnsplashPagedRequest.Cursor {
+    static func cursor(with query: String, page: Int = 1, perPage: Int = 10) -> PagedCursor {
         let parameters = ["query": query]
-        return Cursor(page: page, perPage: perPage, parameters: parameters)
+        return PagedCursor(page: page, perPage: perPage, parameters: parameters)
     }
 
     convenience init(with query: String, page: Int = 1, perPage: Int = 10) {
-        let cursor = SearchPhotosRequest.cursor(with: query, page: page, perPage: perPage)
+        let cursor = UnsplashSearchPhotosRequest.cursor(with: query, page: page, perPage: perPage)
         self.init(with: cursor)
     }
 
@@ -33,7 +33,7 @@ class SearchPhotosRequest: UnsplashPagedRequest {
         super.processJSONResponse()
     }
 
-    func photosFromJSONResponse() -> [UnsplashPhoto]? {
+    func photosFromJSONResponse() -> [WrapAsset<UnsplashPhoto>]? {
         guard let jsonResponse = jsonResponse as? [String: Any],
             let results = jsonResponse["results"] as? [Any] else {
             return nil
@@ -41,7 +41,8 @@ class SearchPhotosRequest: UnsplashPagedRequest {
 
         do {
             let data = try JSONSerialization.data(withJSONObject: results, options: [])
-            return try JSONDecoder().decode([UnsplashPhoto].self, from: data)
+            let photos = try JSONDecoder().decode([UnsplashPhoto].self, from: data)
+            return photos.map { $0.wrap }
         } catch {
             self.error = error
         }

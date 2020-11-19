@@ -12,6 +12,7 @@ enum EmptyViewState {
     case noResults
     case noInternetConnection
     case serverError
+    case other(String, String)
 
     var title: String {
         switch self {
@@ -21,6 +22,8 @@ enum EmptyViewState {
             return "error.noInternetConnection.title".localized()
         case .serverError:
             return "error.serverError.title".localized()
+        case .other(let val, _):
+            return val
         }
     }
 
@@ -32,6 +35,8 @@ enum EmptyViewState {
             return "error.noInternetConnection.description".localized()
         case .serverError:
             return "error.serverError.description".localized()
+        case .other(_, let val):
+            return val
         }
     }
 }
@@ -39,13 +44,25 @@ enum EmptyViewState {
 class EmptyView: UIView {
 
     // MARK: - Properties
-
+    typealias Callback = (EmptyViewState) -> Void
+    var onRetryCallback: Callback?
+    
     private lazy var containerView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
 
+    lazy var retryButton: UIButton = { [weak self] in
+        let view = UIButton(type: UIButton.ButtonType.system)
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.titleLabel?.font = UIFont.boldSystemFont(ofSize: 17)
+        view.setTitle("retry.title".localized(), for: .normal)
+        view.addTarget(self, action: #selector(onRetry), for: .touchUpInside)
+        return view
+    }()
+    
+    
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -81,6 +98,7 @@ class EmptyView: UIView {
         setupContainerView()
         setupTitleLabel()
         setupDescriptionLabel()
+        setupRetryButton()
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -117,16 +135,38 @@ class EmptyView: UIView {
         NSLayoutConstraint.activate([
             descriptionLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: Constants.padding),
             descriptionLabel.leftAnchor.constraint(equalTo: containerView.leftAnchor, constant: Constants.margin),
-            descriptionLabel.bottomAnchor.constraint(equalTo: containerView.bottomAnchor),
             descriptionLabel.rightAnchor.constraint(equalTo: containerView.rightAnchor, constant: -Constants.margin)
+        ])
+    }
+    
+    private func setupRetryButton() {
+        containerView.addSubview(retryButton)
+
+        NSLayoutConstraint.activate([
+            retryButton.topAnchor.constraint(equalTo: descriptionLabel.bottomAnchor, constant: 30),
+            retryButton.leftAnchor.constraint(equalTo: containerView.leftAnchor, constant: Constants.margin),
+            retryButton.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -Constants.margin),
+            retryButton.rightAnchor.constraint(equalTo: containerView.rightAnchor, constant: -Constants.margin)
         ])
     }
 
     private func setupState() {
         titleLabel.text = state?.title
         descriptionLabel.text = state?.description
+        switch self.state {
+        case .noInternetConnection, .serverError, .other:
+            self.retryButton.isHidden = false
+        default:
+            self.retryButton.isHidden = true
+        }
     }
-
+    
+    @objc func onRetry() {
+        guard let `state` = self.state else {
+            return
+        }
+        self.onRetryCallback?(state)
+    }
 }
 
 // MARK: - Constants

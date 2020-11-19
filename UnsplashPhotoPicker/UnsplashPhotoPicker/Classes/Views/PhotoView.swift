@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import Photos
 
 class PhotoView: UIView {
 
@@ -52,31 +53,51 @@ class PhotoView: UIView {
 
     // MARK: - Setup
 
-    func configure(with photo: UnsplashPhoto, showsUsername: Bool = true) {
+    func configure<Source>(with photo: WrapAsset<Source>, showsUsername: Bool = true) {
         self.showsUsername = showsUsername
-        userNameLabel.text = photo.user.displayName
+        userNameLabel.text = photo.name
         imageView.backgroundColor = photo.color
         downloadImage(with: photo)
     }
 
-    private func downloadImage(with photo: UnsplashPhoto) {
-        guard let regularUrl = photo.urls[.regular] else { return }
+    private func downloadImage<Source>(with photo: WrapAsset<Source>) {
+        switch Source.self {
+        case is PHAsset.Type:
+            self.downloadImageAsset(with: photo)
+        default:
+            self.downloadImageURL(with: photo)
+        }
+    }
+    
+    private func downloadImageAsset<Source>(with photo: WrapAsset<Source>) {
+        if let asset = photo.source as? PHAsset {
+            let width: CGFloat = frame.width * screenScale
+            let targetSize = CGSize(width: width, height: (CGFloat(asset.pixelHeight) / CGFloat(asset.pixelWidth)) * width)
+            
+            imageDownloader.downloadPhoto(with: asset, targetSize: targetSize, completion: self.showImage)
+        }
+    }
+    
+    private func downloadImageURL<Source>(with photo: WrapAsset<Source>) {
+        
+        guard let regularUrl = photo.urls[.thumb] else { return }
 
         let url = sizedImageURL(from: regularUrl)
 
-        imageDownloader.downloadPhoto(with: url, completion: { [weak self] (image, isCached) in
-            guard let strongSelf = self, strongSelf.imageDownloader.isCancelled == false else { return }
-
-            if isCached {
-                strongSelf.imageView.image = image
-            } else {
-                UIView.transition(with: strongSelf, duration: 0.25, options: [.transitionCrossDissolve], animations: {
-                    strongSelf.imageView.image = image
-                }, completion: nil)
-            }
-        })
+        imageDownloader.downloadPhoto(with: url, completion: self.showImage)
     }
+    
+    private func showImage(_ image: UIImage?, isCached: Bool) {
+        guard self.imageDownloader.isCancelled == false else { return }
 
+        if isCached {
+            self.imageView.image = image
+        } else {
+            UIView.transition(with: self, duration: 0.25, options: [.transitionCrossDissolve], animations: {
+                self.imageView.image = image
+            }, completion: nil)
+        }
+    }
     private func sizedImageURL(from url: URL) -> URL {
         let width: CGFloat = frame.width * screenScale
         let height: CGFloat = frame.height * screenScale
@@ -89,7 +110,7 @@ class PhotoView: UIView {
 
     // MARK: - Utility
 
-    class func view(with photo: UnsplashPhoto) -> PhotoView? {
+    class func view<Source>(with photo: WrapAsset<Source>) -> PhotoView? {
         guard let photoView = nib.instantiate(withOwner: nil, options: nil).first as? PhotoView else {
             return nil
         }

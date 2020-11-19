@@ -9,18 +9,39 @@
 import UIKit
 
 protocol PagedDataSourceFactory {
-    func initialCursor() -> UnsplashPagedRequest.Cursor
-    func request(with cursor: UnsplashPagedRequest.Cursor) -> UnsplashPagedRequest
+    func initialCursor() -> PagedCursor
+    func request(with cursor: PagedCursor) -> ConcurrentOperation & PagedRequest
 }
 
+struct PagedCursor {
+    let page: Int
+    let perPage: Int
+    let parameters: [String: Any]?
+}
+
+protocol PagedRequest {
+    var cursor: PagedCursor { get }
+
+    var items: [Any] { get set }
+    
+    init(with cursor: PagedCursor)
+    
+    func nextCursor() -> PagedCursor
+}
+extension PagedRequest {
+
+    init(with page: Int = 1, perPage: Int = 10) {
+        self.init(with: PagedCursor(page: page, perPage: perPage, parameters: nil))
+    }
+}
+    
 protocol PagedDataSourceDelegate: AnyObject {
-    func dataSourceWillStartFetching(_ dataSource: PagedDataSource)
-    func dataSource(_ dataSource: PagedDataSource, didFetch items: [UnsplashPhoto])
-    func dataSource(_ dataSource: PagedDataSource, fetchDidFailWithError error: Error)
+    func dataSourceWillStartFetching<Source>(_ dataSource: PagedDataSource<Source>)
+    func dataSource<Source>(_ dataSource: PagedDataSource<Source>, didFetch items: [WrapAsset<Source>])
+    func dataSource<Source>(_ dataSource: PagedDataSource<Source>, fetchDidFailWithError error: Error)
 }
 
-class PagedDataSource {
-
+class PagedDataSource<Source> {
     enum DataSourceError: Error {
         case dataSourceIsFetching
         case wrongItemsType(Any)
@@ -35,10 +56,10 @@ class PagedDataSource {
         }
     }
 
-    private(set) var items = [UnsplashPhoto]()
+    private(set) var items = [WrapAsset<Source>]()
     private(set) var error: Error?
     private let factory: PagedDataSourceFactory
-    private var cursor: UnsplashPagedRequest.Cursor
+    private var cursor: PagedCursor
     private(set) var isFetching = false
     private var canFetchMore = true
     private lazy var operationQueue = OperationQueue(with: "com.unsplash.pagedDataSource")
@@ -82,7 +103,7 @@ class PagedDataSource {
                 return
             }
 
-            guard let items = request.items as? [UnsplashPhoto] else {
+            guard let items = request.items as? [WrapAsset<Source>] else {
                 self.isFetching = false
                 self.fetchDidComplete(withItems: nil, error: DataSourceError.wrongItemsType(request.items))
                 return
@@ -108,7 +129,7 @@ class PagedDataSource {
         isFetching = false
     }
 
-    func item(at index: Int) -> UnsplashPhoto? {
+    func item(at index: Int) -> WrapAsset<Source>? {
         guard index < items.count else {
             return nil
         }
@@ -118,7 +139,7 @@ class PagedDataSource {
 
     // MARK: - Private
 
-    private func fetchDidComplete(withItems items: [UnsplashPhoto]?, error: Error?) {
+    private func fetchDidComplete(withItems items: [WrapAsset<Source>]?, error: Error?) {
         self.error = error
 
         if let error = error {

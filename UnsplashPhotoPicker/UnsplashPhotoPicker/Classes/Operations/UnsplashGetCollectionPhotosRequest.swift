@@ -1,5 +1,5 @@
 //
-//  GetCollectionPhotos.swift
+//  UnsplashGetCollectionPhotosRequest.swift
 //  Unsplash
 //
 //  Created by Olivier Collet on 2017-09-28.
@@ -8,19 +8,19 @@
 
 import Foundation
 
-class GetCollectionPhotosRequest: UnsplashPagedRequest {
+class UnsplashGetCollectionPhotosRequest: UnsplashPagedRequest {
 
-    static func cursor(with collectionId: String, page: Int = 1, perPage: Int = 10) -> UnsplashPagedRequest.Cursor {
+    static func cursor(with collectionId: String, page: Int = 1, perPage: Int = 10) -> PagedCursor {
         let parameters: [String: Any] = ["id": collectionId]
-        return Cursor(page: page, perPage: perPage, parameters: parameters)
+        return PagedCursor(page: page, perPage: perPage, parameters: parameters)
     }
 
     convenience init(for collectionId: String, page: Int = 1, perPage: Int = 10) {
-        let cursor = GetCollectionPhotosRequest.cursor(with: collectionId, page: page, perPage: perPage)
+        let cursor = UnsplashGetCollectionPhotosRequest.cursor(with: collectionId, page: page, perPage: perPage)
         self.init(with: cursor)
     }
 
-    override init(with cursor: Cursor) {
+    required init(with cursor: PagedCursor) {
         if let parameters = cursor.parameters {
             if let collectionId = parameters["id"] as? String {
                 self.collectionId = collectionId
@@ -57,11 +57,12 @@ class GetCollectionPhotosRequest: UnsplashPagedRequest {
         super.processResponseData(data)
     }
 
-    func photosFromResponseData(_ data: Data?) -> [UnsplashPhoto]? {
+    func photosFromResponseData(_ data: Data?) -> [WrapAsset<UnsplashPhoto>]? {
         guard let data = data else { return nil }
 
         do {
-            return try JSONDecoder().decode([UnsplashPhoto].self, from: data)
+            let photos = try JSONDecoder().decode([UnsplashPhoto].self, from: data)
+            return photos.map { $0.wrap }
         } catch {
             self.error = error
             return nil

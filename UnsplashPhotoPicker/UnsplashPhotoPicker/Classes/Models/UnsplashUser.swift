@@ -93,7 +93,7 @@ public struct UnsplashUser: Codable {
 
 // MARK: - Convenience
 extension UnsplashUser {
-    var displayName: String {
+    public var displayName: String {
         if let name = name {
             return name
         }

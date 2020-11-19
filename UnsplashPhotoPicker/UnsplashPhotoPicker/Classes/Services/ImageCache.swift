@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import Photos
 
 class ImageCache {
 
@@ -32,6 +33,8 @@ class ImageCache {
             #endif
         }
     }()
+    
+    static let phcache = PHCachingImageManager()
 
     static let memoryCapacity: Int = 50.megabytes
     static let diskCapacity: Int = 100.megabytes

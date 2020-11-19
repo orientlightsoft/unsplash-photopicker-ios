@@ -8,11 +8,11 @@
 
 import UIKit
 
-class PhotoCell: UICollectionViewCell {
+class PhotoCell<Source>: UICollectionViewCell {
 
     // MARK: - Properties
 
-    static let reuseIdentifier = "PhotoCell"
+//    static let reuseIdentifier = "PhotoCell"
 
     let photoView: PhotoView = {
         // swiftlint:disable force_cast
@@ -66,7 +66,7 @@ class PhotoCell: UICollectionViewCell {
 
     // MARK: - Setup
 
-    func configure(with photo: UnsplashPhoto) {
+    func configure(with photo: WrapAsset<Source>) {
         photoView.configure(with: photo)
     }
 

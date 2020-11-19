@@ -61,7 +61,7 @@ class CheckmarkView: UIView {
     override func tintColorDidChange() {
         super.tintColorDidChange()
         guard let shapeLayer = layer as? CAShapeLayer else { return }
-        shapeLayer.fillColor = tintColor.cgColor
+        shapeLayer.fillColor = Configuration.shared.checkmarkTintColor?.cgColor ?? tintColor.cgColor
     }
 
 }

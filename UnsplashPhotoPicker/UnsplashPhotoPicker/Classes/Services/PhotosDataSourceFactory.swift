@@ -7,31 +7,82 @@
 //
 
 import UIKit
+import Photos
 
-enum PhotosDataSourceFactory: PagedDataSourceFactory {
+enum IconfinderPhotosDataSourceFactory: PagedDataSourceFactory {
+    
+    case `default`
     case search(query: String)
-    case collection(identifier: String)
-
-    var dataSource: PagedDataSource {
+    
+    var dataSource: PagedDataSource<Iconfinder> {
         return PagedDataSource(with: self)
     }
-
-    func initialCursor() -> UnsplashPagedRequest.Cursor {
+    func initialCursor() -> PagedCursor {
         switch self {
         case .search(let query):
-            return SearchPhotosRequest.cursor(with: query, page: 1, perPage: 30)
-        case .collection(let identifier):
-            let perPage = 30
-            return GetCollectionPhotosRequest.cursor(with: identifier, page: 1, perPage: perPage)
+            return IconfinderSearchPhotosRequest.cursor(with: query, page: 1, perPage: 30)
+        default:
+            return PagedCursor(page: 1, perPage: 0, parameters: nil)
+        }
+       
+    }
+    
+    func request(with cursor: PagedCursor) -> ConcurrentOperation & PagedRequest {
+        switch self {
+        case .search(let query):
+            return IconfinderSearchPhotosRequest(with: query, page: cursor.page, perPage: cursor.perPage)
+        default:
+            return CommonPagedRequest(with: cursor)
         }
     }
 
-    func request(with cursor: UnsplashPagedRequest.Cursor) -> UnsplashPagedRequest {
+}
+
+enum CameraRollPhotoDataSourceFactory: PagedDataSourceFactory {
+    case search(query: String)
+    
+    var dataSource: PagedDataSource<PHAsset> {
+        return PagedDataSource(with: self)
+    }
+    func initialCursor() -> PagedCursor {
         switch self {
         case .search(let query):
-            return SearchPhotosRequest(with: query, page: cursor.page, perPage: cursor.perPage)
+            return CameraRollRequest.cursor(with: query, page: 1, perPage: 30)
+        }
+       
+    }
+    
+    func request(with cursor: PagedCursor) -> ConcurrentOperation & PagedRequest {
+        switch self {
+        case .search(let query):
+            return CameraRollRequest(with: query, page: cursor.page, perPage: cursor.perPage)
+        }
+    }
+}
+enum UnsplashPhotosDataSourceFactory: PagedDataSourceFactory {
+    case search(query: String)
+    case collection(identifier: String)
+
+    var dataSource: PagedDataSource<UnsplashPhoto> {
+        return PagedDataSource(with: self)
+    }
+
+    func initialCursor() -> PagedCursor {
+        switch self {
+        case .search(let query):
+            return UnsplashSearchPhotosRequest.cursor(with: query, page: 1, perPage: 30)
         case .collection(let identifier):
-            return GetCollectionPhotosRequest(for: identifier, page: cursor.page, perPage: cursor.perPage)
+            let perPage = 30
+            return UnsplashGetCollectionPhotosRequest.cursor(with: identifier, page: 1, perPage: perPage)
+        }
+    }
+
+    func request(with cursor: PagedCursor) -> ConcurrentOperation & PagedRequest {
+        switch self {
+        case .search(let query):
+            return UnsplashSearchPhotosRequest(with: query, page: cursor.page, perPage: cursor.perPage)
+        case .collection(let identifier):
+            return UnsplashGetCollectionPhotosRequest(for: identifier, page: cursor.page, perPage: cursor.perPage)
         }
     }
 }

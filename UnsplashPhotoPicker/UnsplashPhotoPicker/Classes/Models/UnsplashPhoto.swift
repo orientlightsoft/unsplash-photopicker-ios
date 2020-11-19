@@ -8,16 +8,16 @@
 
 import UIKit
 
+public enum URLKind: String, Codable {
+    case raw
+    case full
+    case regular
+    case small
+    case thumb
+}
+
 /// A struct representing a photo from the Unsplash API.
 public struct UnsplashPhoto: Codable {
-
-    public enum URLKind: String, Codable {
-        case raw
-        case full
-        case regular
-        case small
-        case thumb
-    }
 
     public enum LinkKind: String, Codable {
         case own = "self"
