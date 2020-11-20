@@ -76,6 +76,10 @@ public class PhotoPicker<Source>: UINavigationController {
 
         viewControllers = [photoPickerViewController]
     }
+    
+    public func deselectSelectedItems() {
+        photoPickerViewController.deselectSelectedItems()
+    }
 }
 
 // MARK: - UnsplashPhotoPickerViewControllerDelegate

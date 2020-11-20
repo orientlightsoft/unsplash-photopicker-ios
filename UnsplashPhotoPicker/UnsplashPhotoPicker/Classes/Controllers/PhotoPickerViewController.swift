@@ -326,6 +326,12 @@ open class PhotoPickerViewController<Source>: UIViewController, UISearchControll
         }
     }
     
+    func deselectSelectedItems() {
+        self.collectionView.indexPathsForSelectedItems?.forEach { (indexPath) in
+            self.collectionView.deselectItem(at: indexPath, animated: true)
+        }
+        
+    }
     // MARK: - Download tracking
     func trackDownloads(for photos: [WrapAsset<Source>]) {
         
