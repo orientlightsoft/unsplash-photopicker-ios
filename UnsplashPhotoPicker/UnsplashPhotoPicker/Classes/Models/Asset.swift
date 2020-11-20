@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Photos
 
 public struct Asset {
     public let identifier: String
@@ -24,9 +25,8 @@ public struct Asset {
         self.headers = asset.headers
     }
 }
-import Photos
 
-struct WrapAsset<Source> {
+public struct WrapAsset<Source> {
     internal let source: Source
     internal let identifierKeyPath: KeyPath<Source, String>
     internal let nameKeyPath: KeyPath<Source, String>?
@@ -37,6 +37,17 @@ struct WrapAsset<Source> {
     internal let trackingKeyPath: KeyPath<Source, URL?>?
     internal let headersKeyPath: KeyPath<Source, [String:String]>?
     
+    public init(source: Source, identifierKeyPath: KeyPath<Source, String>, nameKeyPath: KeyPath<Source, String>? = nil, colorKeyPath: KeyPath<Source, UIColor?>? = nil, heightKeyPath: KeyPath<Source, Int>, widthKeyPath: KeyPath<Source, Int>, urlsKeyPath: KeyPath<Source, [URLKind: URL]>, trackingKeyPath: KeyPath<Source, URL?>? = nil, headersKeyPath: KeyPath<Source, [String:String]>? = nil) {
+        self.source = source
+        self.identifierKeyPath = identifierKeyPath
+        self.nameKeyPath = nameKeyPath
+        self.colorKeyPath = colorKeyPath
+        self.heightKeyPath = heightKeyPath
+        self.widthKeyPath = widthKeyPath
+        self.urlsKeyPath = urlsKeyPath
+        self.trackingKeyPath = trackingKeyPath
+        self.headersKeyPath = headersKeyPath
+    }
     internal var identifier: String {
         get {
             return self.source[keyPath: identifierKeyPath]

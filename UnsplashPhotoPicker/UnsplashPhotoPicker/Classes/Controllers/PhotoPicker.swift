@@ -43,29 +43,25 @@ public class PhotoPicker<Source>: UINavigationController {
             return photoPickerViewController.scrollView
         }
     }
+    
+    public class func unsplash(prefixQuery: String?) -> PhotoPickerViewController<Source> {
+        return UnsplashPhotoPickerViewController(prefixQuery: prefixQuery) as! PhotoPickerViewController<Source>
+    }
+    
+    public class func iconfinder(prefixQuery: String?) -> PhotoPickerViewController<Source> {
+        return IconfinderPhotoPickerViewController(prefixQuery: prefixQuery) as! PhotoPickerViewController<Source>
+    }
     // MARK: - Lifetime
-
     /**
      Initializes an `UnsplashPhotoPicker` object with a configuration.
 
      - parameter configuration: The configuration struct that specifies how UnsplashPhotoPicker should be configured.
      */
-    public init(configuration: PhotoPickerConfiguration, prefixQuery: String?) {
+    
+    public init(configuration: PhotoPickerConfiguration, controller: PhotoPickerViewController<Source>) {
         Configuration.shared = configuration
-        switch Source.self {
-        case is UnsplashPhoto.Type:
-            self.photoPickerViewController = UnsplashPhotoPickerViewController(prefixQuery: prefixQuery) as! PhotoPickerViewController<Source>
-        case is Iconfinder.Type:
-            self.photoPickerViewController = IconfinderPhotoPickerViewController(prefixQuery: prefixQuery) as! PhotoPickerViewController<Source>
-        case is PHAsset.Type:
-            self.photoPickerViewController = CameraRollPhotoPickerViewController(prefixQuery: prefixQuery) as! PhotoPickerViewController<Source>
-        default:
-            fatalError("Abstract method")
-        }
-
-        
+        self.photoPickerViewController = controller
         super.init(nibName: nil, bundle: nil)
-
         photoPickerViewController.delegate = self
     }
 
@@ -92,7 +88,7 @@ extension PhotoPicker: PhotoPickerViewControllerDelegate {
             photo.preload { (url) in
                 var asset = Asset.init(wrap: photo)
                 if let url = url, asset.urls.isEmpty {
-                    asset.urls = [.regular: url]
+                    asset.urls = [.regular: url, .thumb: url]
                 }
                 assets.append(asset)
                 group.leave()

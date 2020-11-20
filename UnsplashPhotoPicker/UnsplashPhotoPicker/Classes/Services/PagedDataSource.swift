@@ -8,20 +8,25 @@
 
 import UIKit
 
-protocol PagedDataSourceFactory {
+public protocol PagedDataSourceFactory {
     func initialCursor() -> PagedCursor
     func request(with cursor: PagedCursor) -> ConcurrentOperation & PagedRequest
 }
 
-struct PagedCursor {
-    let page: Int
-    let perPage: Int
-    let parameters: [String: Any]?
+public struct PagedCursor {
+    public let page: Int
+    public let perPage: Int
+    public let parameters: [String: Any]?
+    public init( page: Int, perPage: Int, parameters: [String: Any]?) {
+        self.page = page
+        self.perPage = perPage
+        self.parameters = parameters
+    }
 }
 
-protocol PagedRequest {
+public protocol PagedRequest {
     var cursor: PagedCursor { get }
-
+    
     var items: [Any] { get set }
     
     init(with cursor: PagedCursor)
@@ -29,23 +34,23 @@ protocol PagedRequest {
     func nextCursor() -> PagedCursor
 }
 extension PagedRequest {
-
+    
     init(with page: Int = 1, perPage: Int = 10) {
         self.init(with: PagedCursor(page: page, perPage: perPage, parameters: nil))
     }
 }
-    
+
 protocol PagedDataSourceDelegate: AnyObject {
     func dataSourceWillStartFetching<Source>(_ dataSource: PagedDataSource<Source>)
     func dataSource<Source>(_ dataSource: PagedDataSource<Source>, didFetch items: [WrapAsset<Source>])
     func dataSource<Source>(_ dataSource: PagedDataSource<Source>, fetchDidFailWithError error: Error)
 }
 
-class PagedDataSource<Source> {
+public class PagedDataSource<Source> {
     enum DataSourceError: Error {
         case dataSourceIsFetching
         case wrongItemsType(Any)
-
+        
         var localizedDescription: String {
             switch self {
             case .dataSourceIsFetching:
@@ -55,7 +60,7 @@ class PagedDataSource<Source> {
             }
         }
     }
-
+    
     private(set) var items = [WrapAsset<Source>]()
     private(set) var error: Error?
     private let factory: PagedDataSourceFactory
@@ -63,14 +68,14 @@ class PagedDataSource<Source> {
     private(set) var isFetching = false
     private var canFetchMore = true
     private lazy var operationQueue = OperationQueue(with: "com.unsplash.pagedDataSource")
-
+    
     weak var delegate: PagedDataSourceDelegate?
-
-    init(with factory: PagedDataSourceFactory) {
+    
+    public init(with factory: PagedDataSourceFactory) {
         self.factory = factory
         self.cursor = factory.initialCursor()
     }
-
+    
     func reset() {
         operationQueue.cancelAllOperations()
         items.removeAll()
@@ -79,22 +84,22 @@ class PagedDataSource<Source> {
         cursor = factory.initialCursor()
         error = nil
     }
-
+    
     func fetchNextPage() {
         if isFetching {
             fetchDidComplete(withItems: nil, error: DataSourceError.dataSourceIsFetching)
             return
         }
-
+        
         if canFetchMore == false {
             fetchDidComplete(withItems: [], error: nil)
             return
         }
-
+        
         delegate?.dataSourceWillStartFetching(self)
-
+        
         isFetching = true
-
+        
         let request = factory.request(with: cursor)
         request.completionBlock = {
             if let error = request.error {
@@ -102,46 +107,46 @@ class PagedDataSource<Source> {
                 self.fetchDidComplete(withItems: nil, error: error)
                 return
             }
-
+            
             guard let items = request.items as? [WrapAsset<Source>] else {
                 self.isFetching = false
                 self.fetchDidComplete(withItems: nil, error: DataSourceError.wrongItemsType(request.items))
                 return
             }
-
+            
             if items.count < self.cursor.perPage {
                 self.canFetchMore = false
             } else {
                 self.cursor = request.nextCursor()
             }
-
+            
             self.items.append(contentsOf: items)
-
+            
             self.isFetching = false
             self.fetchDidComplete(withItems: items, error: nil)
         }
-
+        
         operationQueue.addOperationWithDependencies(request)
     }
-
+    
     func cancelFetch() {
         operationQueue.cancelAllOperations()
         isFetching = false
     }
-
+    
     func item(at index: Int) -> WrapAsset<Source>? {
         guard index < items.count else {
             return nil
         }
-
+        
         return items[index]
     }
-
+    
     // MARK: - Private
-
+    
     private func fetchDidComplete(withItems items: [WrapAsset<Source>]?, error: Error?) {
         self.error = error
-
+        
         if let error = error {
             delegate?.dataSource(self, fetchDidFailWithError: error)
         } else {
@@ -149,5 +154,5 @@ class PagedDataSource<Source> {
             delegate?.dataSource(self, didFetch: items)
         }
     }
-
+    
 }

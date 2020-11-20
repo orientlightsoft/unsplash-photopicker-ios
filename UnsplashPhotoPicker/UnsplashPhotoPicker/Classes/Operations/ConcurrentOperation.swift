@@ -7,18 +7,18 @@
 
 import Foundation
 
-class ConcurrentOperation: Operation {
+open class ConcurrentOperation: Operation {
 
-    var error: Error?
+    public var error: Error?
 
-    override init() {
+    public override init() {
         overrideExecuting = false
         overrideFinished = false
 
         super.init()
     }
 
-    override func start() {
+    public override func start() {
         isExecuting = true
 
         if isCancelled || hasCancelledDependency() {
@@ -30,23 +30,23 @@ class ConcurrentOperation: Operation {
         main()
     }
 
-    func completeOperation() {
+    public func completeOperation() {
         isExecuting = false
         isFinished = true
     }
 
-    final func completeWithError(_ error: Error) {
+    public final func completeWithError(_ error: Error) {
         self.error = error
         cancelAndCompleteOperation()
     }
 
-    func cancelAndCompleteOperation() {
+    public func cancelAndCompleteOperation() {
         cancel()
         completeOperation()
     }
 
     private var overrideExecuting: Bool
-    override var isExecuting: Bool {
+    public override var isExecuting: Bool {
         get { return overrideExecuting }
         set {
             willChangeValue(forKey: "isExecuting")
@@ -56,7 +56,7 @@ class ConcurrentOperation: Operation {
     }
 
     private var overrideFinished: Bool
-    override var isFinished: Bool {
+    public override var isFinished: Bool {
         get { return overrideFinished }
         set {
             willChangeValue(forKey: "isFinished")

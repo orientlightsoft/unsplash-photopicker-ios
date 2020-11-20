@@ -8,7 +8,7 @@
 
 import UIKit
 
-enum EmptyViewState {
+public enum EmptyViewState {
     case noResults
     case noInternetConnection
     case serverError

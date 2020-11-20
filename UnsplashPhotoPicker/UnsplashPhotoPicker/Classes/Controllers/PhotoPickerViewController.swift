@@ -13,7 +13,7 @@ protocol PhotoPickerViewControllerDelegate: class {
     func photoPickerViewControllerDidCancel<Source>(_ viewController: PhotoPickerViewController<Source>)
 }
 
-class PhotoPickerViewController<Source>: UIViewController, UISearchControllerDelegate, UISearchBarDelegate, UIScrollViewDelegate, UIViewControllerPreviewingDelegate, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, WaterfallLayoutDelegate {
+open class PhotoPickerViewController<Source>: UIViewController, UISearchControllerDelegate, UISearchBarDelegate, UIScrollViewDelegate, UIViewControllerPreviewingDelegate, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, WaterfallLayoutDelegate {
 
     // MARK: - Properties
 
@@ -48,7 +48,7 @@ class PhotoPickerViewController<Source>: UIViewController, UISearchControllerDel
         return searchController
     }()
 
-    internal var searchPlaceHolder: String { return "search.photos.placeholder".localized() }
+    open var searchPlaceHolder: String { return "search.photos.placeholder".localized() }
     
     private lazy var layout = WaterfallLayout(with: self)
 
@@ -87,7 +87,7 @@ class PhotoPickerViewController<Source>: UIViewController, UISearchControllerDel
         return view
     }()
 
-    var dataSource: PagedDataSource<Source>? {
+    public var dataSource: PagedDataSource<Source>? {
         didSet {
             oldValue?.cancelFetch()
             dataSource?.delegate = self
@@ -99,9 +99,9 @@ class PhotoPickerViewController<Source>: UIViewController, UISearchControllerDel
     }
 
     private var previewingContext: UIViewControllerPreviewing?
-    internal var searchText: String?
-    internal let prefixQuery: String?
-    public weak var delegate: PhotoPickerViewControllerDelegate?
+    public var searchText: String?
+    public let prefixQuery: String?
+    weak var delegate: PhotoPickerViewControllerDelegate?
 
     // MARK: - Lifetime
     
@@ -110,12 +110,12 @@ class PhotoPickerViewController<Source>: UIViewController, UISearchControllerDel
         self.init(prefixQuery: prefixQuery)
         
     }
-    init(prefixQuery: String?) {
+    public init(prefixQuery: String?) {
         self.prefixQuery = prefixQuery
         super.init(nibName: nil, bundle: nil)
     }
 
-    required init?(coder aDecoder: NSCoder) {
+    required public init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
@@ -138,7 +138,7 @@ class PhotoPickerViewController<Source>: UIViewController, UISearchControllerDel
         setSearchText(trimmedQuery)
     }
 
-    public override func viewWillAppear(_ animated: Bool) {
+    open override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
         if let dataSource = dataSource, dataSource.items.count == 0 {
@@ -146,7 +146,7 @@ class PhotoPickerViewController<Source>: UIViewController, UISearchControllerDel
         }
     }
 
-    public override func viewWillDisappear(_ animated: Bool) {
+    open override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
 
         // Fix to avoid a retain issue
@@ -182,7 +182,7 @@ class PhotoPickerViewController<Source>: UIViewController, UISearchControllerDel
         }
     }
 
-    func setupSearchController() {
+    open func setupSearchController() {
         let trimmedQuery = Configuration.shared.unsplash.query?.trimmingCharacters(in: .whitespacesAndNewlines)
         if let query = trimmedQuery, query.isEmpty == false { return }
 
@@ -221,7 +221,7 @@ class PhotoPickerViewController<Source>: UIViewController, UISearchControllerDel
             self?.retry()
         }
     }
-    func emptyViewStateForError(_ error: Error) -> EmptyViewState {
+    open func emptyViewStateForError(_ error: Error) -> EmptyViewState {
         return (error as NSError).isNoInternetConnectionError() ? .noInternetConnection : .serverError
     }
 
@@ -293,11 +293,11 @@ class PhotoPickerViewController<Source>: UIViewController, UISearchControllerDel
 
     // MARK: - Data
 
-    internal func setSearchText(_ text: String?) {
+    open func setSearchText(_ text: String?) {
        fatalError("Abstract method")
     }
 
-    @objc func refresh() {
+    @objc public func refresh() {
         guard let dataSource = dataSource, dataSource.items.isEmpty else { return }
 
         if dataSource.isFetching == false && dataSource.items.count == 0 {
@@ -311,7 +311,7 @@ class PhotoPickerViewController<Source>: UIViewController, UISearchControllerDel
         collectionView.reloadData()
     }
     
-    func retry() {
+    open func retry() {
         refresh()
     }
 
