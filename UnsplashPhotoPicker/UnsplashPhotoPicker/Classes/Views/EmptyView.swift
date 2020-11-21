@@ -12,7 +12,7 @@ public enum EmptyViewState {
     case noResults
     case noInternetConnection
     case serverError
-    case other(String, String)
+    case other(String, String, String)
 
     var title: String {
         switch self {
@@ -22,7 +22,7 @@ public enum EmptyViewState {
             return "error.noInternetConnection.title".localized()
         case .serverError:
             return "error.serverError.title".localized()
-        case .other(let val, _):
+        case .other(let val, _, _):
             return val
         }
     }
@@ -35,8 +35,17 @@ public enum EmptyViewState {
             return "error.noInternetConnection.description".localized()
         case .serverError:
             return "error.serverError.description".localized()
-        case .other(_, let val):
+        case .other(_, let val, _):
             return val
+        }
+    }
+    
+    var retry: String {
+        switch self {
+        case .other(_, _, let val):
+            return val
+        default:
+            return "retry.title".localized()
         }
     }
 }
@@ -153,6 +162,7 @@ class EmptyView: UIView {
     private func setupState() {
         titleLabel.text = state?.title
         descriptionLabel.text = state?.description
+        self.retryButton.setTitle(state?.retry, for: .normal)
         switch self.state {
         case .noInternetConnection, .serverError, .other:
             self.retryButton.isHidden = false

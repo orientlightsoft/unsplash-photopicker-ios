@@ -297,10 +297,10 @@ open class PhotoPickerViewController<Source>: UIViewController, UISearchControll
        fatalError("Abstract method")
     }
 
-    @objc public func refresh() {
-        guard let dataSource = dataSource, dataSource.items.isEmpty else { return }
+    @objc public func refresh(force: Bool = false) {
+        guard let dataSource = dataSource, force || dataSource.items.isEmpty else { return }
 
-        if dataSource.isFetching == false && dataSource.items.count == 0 {
+        if dataSource.isFetching == false && (force || dataSource.items.count == 0) {
             dataSource.reset()
             reloadData()
             fetchNextItems()
