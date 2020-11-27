@@ -36,8 +36,9 @@ public struct WrapAsset<Source> {
     internal let urlsKeyPath: KeyPath<Source, [URLKind: URL]>
     internal let trackingKeyPath: KeyPath<Source, URL?>?
     internal let headersKeyPath: KeyPath<Source, [String:String]>?
+    internal let diskCachePathKeyPath: KeyPath<Source, String>?
     
-    public init(source: Source, identifierKeyPath: KeyPath<Source, String>, nameKeyPath: KeyPath<Source, String>? = nil, colorKeyPath: KeyPath<Source, UIColor?>? = nil, heightKeyPath: KeyPath<Source, Int>, widthKeyPath: KeyPath<Source, Int>, urlsKeyPath: KeyPath<Source, [URLKind: URL]>, trackingKeyPath: KeyPath<Source, URL?>? = nil, headersKeyPath: KeyPath<Source, [String:String]>? = nil) {
+    public init(source: Source, identifierKeyPath: KeyPath<Source, String>, nameKeyPath: KeyPath<Source, String>? = nil, colorKeyPath: KeyPath<Source, UIColor?>? = nil, heightKeyPath: KeyPath<Source, Int>, widthKeyPath: KeyPath<Source, Int>, urlsKeyPath: KeyPath<Source, [URLKind: URL]>, trackingKeyPath: KeyPath<Source, URL?>? = nil, headersKeyPath: KeyPath<Source, [String:String]>? = nil, diskCachePathKeyPath: KeyPath<Source, String>? = nil) {
         self.source = source
         self.identifierKeyPath = identifierKeyPath
         self.nameKeyPath = nameKeyPath
@@ -47,6 +48,7 @@ public struct WrapAsset<Source> {
         self.urlsKeyPath = urlsKeyPath
         self.trackingKeyPath = trackingKeyPath
         self.headersKeyPath = headersKeyPath
+        self.diskCachePathKeyPath = diskCachePathKeyPath
     }
     internal var identifier: String {
         get {
@@ -79,6 +81,12 @@ public struct WrapAsset<Source> {
         get {
             guard let trackingKeyPath = trackingKeyPath else { return nil }
             return self.source[keyPath: trackingKeyPath]
+        }
+    }
+    internal var diskCachePath: String? {
+        get {
+            guard let diskCachePathKeyPath = diskCachePathKeyPath else { return nil }
+            return self.source[keyPath: diskCachePathKeyPath]
         }
     }
     internal var headers: [String: String] {

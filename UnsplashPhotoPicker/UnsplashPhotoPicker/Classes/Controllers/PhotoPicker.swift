@@ -90,12 +90,14 @@ extension PhotoPicker: PhotoPickerViewControllerDelegate {
         photos.forEach { (photo) in
             group.enter()
             photo.preload { (url) in
-                var asset = Asset.init(wrap: photo)
-                if let url = url, asset.urls.isEmpty {
-                    asset.urls = [.regular: url, .thumb: url]
+                DispatchQueue.global(qos: .background).async {
+                    var asset = Asset.init(wrap: photo)
+                    if let url = url, asset.urls.isEmpty {
+                        asset.urls = [.regular: url, .thumb: url]
+                    }
+                    assets.append(asset)
+                    group.leave()
                 }
-                assets.append(asset)
-                group.leave()
             }
         }
         group.notify(queue: .main) {[weak self] in

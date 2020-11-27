@@ -61,30 +61,34 @@ class PhotoView: UIView {
     }
 
     private func downloadImage<Source>(with photo: WrapAsset<Source>) {
-        switch Source.self {
-        case is PHAsset.Type:
-            self.downloadImageAsset(with: photo)
-        default:
-            self.downloadImageURL(with: photo)
+        let maxSize = CGSize(width: frame.width * screenScale, height: frame.height * screenScale)
+        DispatchQueue.global(qos: .userInitiated).async {[weak self] in
+            guard let self = self else { return }
+            switch Source.self {
+            case is PHAsset.Type:
+                self.downloadImageAsset(with: photo, maxSize: maxSize)
+            default:
+                self.downloadImageURL(with: photo, maxSize: maxSize)
+            }
         }
+  
     }
     
-    private func downloadImageAsset<Source>(with photo: WrapAsset<Source>) {
+    private func downloadImageAsset<Source>(with photo: WrapAsset<Source>, maxSize: CGSize) {
         if let asset = photo.source as? PHAsset {
-            let width: CGFloat = frame.width * screenScale
-            let targetSize = CGSize(width: width, height: (CGFloat(asset.pixelHeight) / CGFloat(asset.pixelWidth)) * width)
+            let targetSize = CGSize(width: maxSize.width, height: (CGFloat(asset.pixelHeight) / CGFloat(asset.pixelWidth)) * maxSize.width)
             
             imageDownloader.downloadPhoto(with: asset, targetSize: targetSize, completion: self.showImage)
         }
     }
     
-    private func downloadImageURL<Source>(with photo: WrapAsset<Source>) {
+    private func downloadImageURL<Source>(with photo: WrapAsset<Source>, maxSize: CGSize) {
         
         guard let regularUrl = photo.urls[.thumb] else { return }
 
-        let url = sizedImageURL(from: regularUrl)
-
-        imageDownloader.downloadPhoto(with: url, completion: self.showImage)
+        let url = sizedImageURL(from: regularUrl, maxSize: maxSize)
+        
+        imageDownloader.downloadPhoto(with: photo, url: url, completion: self.showImage)
     }
     
     private func showImage(_ image: UIImage?, isCached: Bool) {
@@ -98,13 +102,10 @@ class PhotoView: UIView {
             }, completion: nil)
         }
     }
-    private func sizedImageURL(from url: URL) -> URL {
-        let width: CGFloat = frame.width * screenScale
-        let height: CGFloat = frame.height * screenScale
-
+    private func sizedImageURL(from url: URL, maxSize: CGSize) -> URL {
         return url.appending(queryItems: [
-            URLQueryItem(name: "max-w", value: "\(width)"),
-            URLQueryItem(name: "max-h", value: "\(height)")
+            URLQueryItem(name: "max-w", value: "\(maxSize.width)"),
+            URLQueryItem(name: "max-h", value: "\(maxSize.height)")
         ])
     }
 
