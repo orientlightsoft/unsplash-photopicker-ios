@@ -77,8 +77,8 @@ class PhotoView: UIView {
     private func downloadImageAsset<Source>(with photo: WrapAsset<Source>, maxSize: CGSize) {
         if let asset = photo.source as? PHAsset {
             let targetSize = CGSize(width: maxSize.width, height: (CGFloat(asset.pixelHeight) / CGFloat(asset.pixelWidth)) * maxSize.width)
-            
-            imageDownloader.downloadPhoto(with: asset, targetSize: targetSize, completion: self.showImage)
+            unowned let weakSelf = self
+            imageDownloader.downloadPhoto(with: asset, targetSize: targetSize, completion: weakSelf.showImage)
         }
     }
     
@@ -87,8 +87,8 @@ class PhotoView: UIView {
         guard let regularUrl = photo.urls[.thumb] else { return }
 
         let url = sizedImageURL(from: regularUrl, maxSize: maxSize)
-        
-        imageDownloader.downloadPhoto(with: photo, url: url, completion: self.showImage)
+        unowned let weakSelf = self
+        imageDownloader.downloadPhoto(with: photo, url: url, completion: weakSelf.showImage)
     }
     
     private func showImage(_ image: UIImage?, isCached: Bool) {
@@ -97,7 +97,8 @@ class PhotoView: UIView {
         if isCached {
             self.imageView.image = image
         } else {
-            UIView.transition(with: self, duration: 0.25, options: [.transitionCrossDissolve], animations: {
+            UIView.transition(with: self, duration: 0.25, options: [.transitionCrossDissolve], animations: { [weak self] in
+                guard let self = self, self.imageDownloader.isCancelled == false else { return }
                 self.imageView.image = image
             }, completion: nil)
         }
