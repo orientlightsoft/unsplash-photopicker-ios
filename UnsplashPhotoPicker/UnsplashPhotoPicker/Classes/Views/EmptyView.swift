@@ -50,7 +50,7 @@ public enum EmptyViewState {
     }
 }
 
-class EmptyView: UIView {
+public class EmptyView: UIView {
 
     // MARK: - Properties
     typealias Callback = (EmptyViewState) -> Void
@@ -92,7 +92,7 @@ class EmptyView: UIView {
         return label
     }()
 
-    var state: EmptyViewState? {
+    public var state: EmptyViewState? {
         didSet {
             setupState()
         }
@@ -100,7 +100,7 @@ class EmptyView: UIView {
 
     // MARK: - Lifetime
 
-    init() {
+    public init() {
         super.init(frame: .zero)
 
         backgroundColor = UIColor.photoPicker.background

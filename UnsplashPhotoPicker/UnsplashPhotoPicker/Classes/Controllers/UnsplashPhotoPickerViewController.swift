@@ -33,6 +33,9 @@ class UnsplashPhotoPickerViewController: PhotoPickerViewController<UnsplashPhoto
             dataSource = editorialDataSource
             searchText = nil
         }
+        if let query = text, !query.isEmpty {
+            Configuration.shared.analyticsBlock?("search", ["query": query, "akind": "unsplash"])
+        }
     }
     
     override func trackDownloads(for photos: [WrapAsset<UnsplashPhoto>]) {

@@ -44,7 +44,7 @@ public struct UnsplashConfiguration {
         self.query = query
     }
 }
-
+public typealias PhotoPickerAnalyticsBlock = (String, [String: Any]) -> Void
 /// Encapsulates configuration information for the behavior of UnsplashPhotoPicker.
 public struct PhotoPickerConfiguration {
 
@@ -58,6 +58,8 @@ public struct PhotoPickerConfiguration {
     public var allowCancelSelection = true
     
     public var showNavigationTitle = true
+    
+    public var analyticsBlock: PhotoPickerAnalyticsBlock?
     
     /// Checkmark image
     public var checkmarkTintColor: UIColor?
@@ -88,6 +90,7 @@ public struct PhotoPickerConfiguration {
      */
     public init(unsplash: UnsplashConfiguration,
                 iconfinder: IconfinderConfiguration,
+                analyticsBlock: PhotoPickerAnalyticsBlock? = nil,
                 allowsMultipleSelection: Bool = false,
                 allowCancelSelection: Bool = true,
                 showNavigationTitle: Bool = true,
@@ -95,6 +98,7 @@ public struct PhotoPickerConfiguration {
                 diskCapacity: Int = defaultDiskCapacity) {
         self.unsplash = unsplash
         self.iconfinder = iconfinder
+        self.analyticsBlock = analyticsBlock
         self.allowsMultipleSelection = allowsMultipleSelection
         self.allowCancelSelection = allowCancelSelection
         self.showNavigationTitle = showNavigationTitle

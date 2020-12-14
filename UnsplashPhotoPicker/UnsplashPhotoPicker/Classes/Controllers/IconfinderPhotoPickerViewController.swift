@@ -25,5 +25,8 @@ class IconfinderPhotoPickerViewController: PhotoPickerViewController<Iconfinder>
         let val = searchVals.joined(separator: "+")
         dataSource = IconfinderPhotosDataSourceFactory.search(query: val).dataSource
         searchText = text
+        if let query = text, !query.isEmpty {
+            Configuration.shared.analyticsBlock?("search", ["query": query, "akind": "iconfinder"])
+        }
     }
 }
