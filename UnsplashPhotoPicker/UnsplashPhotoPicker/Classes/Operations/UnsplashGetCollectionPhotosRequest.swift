@@ -11,7 +11,7 @@ import Foundation
 class UnsplashGetCollectionPhotosRequest: UnsplashPagedRequest {
 
     static func cursor(with collectionId: String, page: Int = 1, perPage: Int = 10) -> PagedCursor {
-        let parameters: [String: Any] = ["id": collectionId]
+        let parameters: [String: AnyHashable] = ["id": collectionId]
         return PagedCursor(page: page, perPage: perPage, parameters: parameters)
     }
 

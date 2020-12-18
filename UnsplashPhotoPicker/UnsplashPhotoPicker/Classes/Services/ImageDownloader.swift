@@ -75,8 +75,10 @@ class ImageDownloader {
         if let token = self.token {
             self.phcache.cancelImageRequest(token)
         }
-        isCancelled = true
         imageDataTask?.cancel()
+        
+        isCancelled = true
+
     }
 
 }

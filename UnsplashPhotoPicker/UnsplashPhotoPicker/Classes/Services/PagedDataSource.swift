@@ -16,14 +16,21 @@ public protocol PagedDataSourceFactory {
 public struct PagedCursor {
     public let page: Int
     public let perPage: Int
-    public let parameters: [String: Any]?
-    public init( page: Int, perPage: Int, parameters: [String: Any]?) {
+    public let parameters: [String: AnyHashable]?
+    public init( page: Int, perPage: Int, parameters: [String: AnyHashable]?) {
         self.page = page
         self.perPage = perPage
         self.parameters = parameters
     }
 }
 
+extension PagedCursor: Hashable {
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(page)
+        hasher.combine(perPage)
+        hasher.combine(parameters)
+    }
+}
 public protocol PagedRequest {
     var cursor: PagedCursor { get }
     

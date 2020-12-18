@@ -10,7 +10,7 @@ import Foundation
 class IconfinderSearchPhotosRequest: IconfinderPagedRequest {
 
     static func cursor(with query: String, page: Int = 1, perPage: Int = 10) -> PagedCursor {
-        let parameters: [String : Any] = ["query": query, "premium": 0, "vector": 1]
+        let parameters: [String : AnyHashable] = ["query": query, "premium": 0, "vector": 1]
         return PagedCursor(page: page, perPage: perPage, parameters: parameters)
     }
 
