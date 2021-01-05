@@ -18,7 +18,7 @@ public protocol PhotoPickerDelegate: class {
      - parameter photoPicker: The `UnsplashPhotoPicker` instance responsible for selecting the photos.
      - parameter photos:      The selected photos.
      */
-    func photoPicker<Source>(_ photoPicker: PhotoPicker<Source>, didSelectPhotos photos: [Asset])
+    func photoPicker<Source>(_ photoPicker: PhotoPicker<Source>, sender: AnyObject?, didSelectPhotos photos: [Asset])
 
     /**
      Notifies the delegate that UnsplashPhotoPicker has been canceled.
@@ -84,7 +84,8 @@ public class PhotoPicker<Source>: UINavigationController {
 
 // MARK: - UnsplashPhotoPickerViewControllerDelegate
 extension PhotoPicker: PhotoPickerViewControllerDelegate {
-    func photoPickerViewController<Source>(_ viewController: PhotoPickerViewController<Source>, didSelectPhotos photos: [WrapAsset<Source>]) {
+    
+    func photoPickerViewController<Source>(_ viewController: PhotoPickerViewController<Source>, sender: AnyObject?, didSelectPhotos photos: [WrapAsset<Source>]) {
         let group = DispatchGroup()
         var assets = [Asset]()
         photos.forEach { (photo) in
@@ -93,7 +94,7 @@ extension PhotoPicker: PhotoPickerViewControllerDelegate {
                 DispatchQueue.global(qos: .background).async {
                     var asset = Asset.init(wrap: photo)
                     if let url = url, asset.urls.isEmpty {
-                        asset.urls = [.regular: url, .thumb: url]
+                        asset.urls = [.regular: { $0(url) }, .thumb: { $0(url) }]
                     }
                     assets.append(asset)
                     group.leave()
@@ -102,7 +103,7 @@ extension PhotoPicker: PhotoPickerViewControllerDelegate {
         }
         group.notify(queue: .main) {[weak self] in
             guard let self = self else { return }
-            self.photoPickerDelegate?.photoPicker(self, didSelectPhotos: assets)
+            self.photoPickerDelegate?.photoPicker(self, sender: sender, didSelectPhotos: assets)
         }
         
     }

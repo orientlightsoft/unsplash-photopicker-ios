@@ -13,7 +13,7 @@ public struct Asset {
     public let size: CGSize
     public let name: String
     public let color: UIColor?
-    public var urls: [URLKind: URL]
+    public var urls: [URLKind: WrapAssetURLBlock]
     public let headers: [String: String]
     
     init<Source>(wrap asset: WrapAsset<Source>) {
@@ -25,6 +25,7 @@ public struct Asset {
         self.headers = asset.headers
     }
 }
+public typealias WrapAssetURLBlock = ((URL?) -> Void) -> Void
 
 public struct WrapAsset<Source> {
     internal let source: Source
@@ -33,12 +34,12 @@ public struct WrapAsset<Source> {
     internal let colorKeyPath: KeyPath<Source, UIColor?>?
     internal let heightKeyPath: KeyPath<Source, Int>
     internal let widthKeyPath: KeyPath<Source, Int>
-    internal let urlsKeyPath: KeyPath<Source, [URLKind: URL]>
+    internal let urlsKeyPath: KeyPath<Source, [URLKind: WrapAssetURLBlock]>
     internal let trackingKeyPath: KeyPath<Source, URL?>?
     internal let headersKeyPath: KeyPath<Source, [String:String]>?
     internal let diskCachePathKeyPath: KeyPath<Source, String>?
     
-    public init(source: Source, identifierKeyPath: KeyPath<Source, String>, nameKeyPath: KeyPath<Source, String>? = nil, colorKeyPath: KeyPath<Source, UIColor?>? = nil, heightKeyPath: KeyPath<Source, Int>, widthKeyPath: KeyPath<Source, Int>, urlsKeyPath: KeyPath<Source, [URLKind: URL]>, trackingKeyPath: KeyPath<Source, URL?>? = nil, headersKeyPath: KeyPath<Source, [String:String]>? = nil, diskCachePathKeyPath: KeyPath<Source, String>? = nil) {
+    public init(source: Source, identifierKeyPath: KeyPath<Source, String>, nameKeyPath: KeyPath<Source, String>? = nil, colorKeyPath: KeyPath<Source, UIColor?>? = nil, heightKeyPath: KeyPath<Source, Int>, widthKeyPath: KeyPath<Source, Int>, urlsKeyPath: KeyPath<Source, [URLKind: WrapAssetURLBlock]>, trackingKeyPath: KeyPath<Source, URL?>? = nil, headersKeyPath: KeyPath<Source, [String:String]>? = nil, diskCachePathKeyPath: KeyPath<Source, String>? = nil) {
         self.source = source
         self.identifierKeyPath = identifierKeyPath
         self.nameKeyPath = nameKeyPath
@@ -72,7 +73,7 @@ public struct WrapAsset<Source> {
             return self.source[keyPath: colorKeyPath]
         }
     }
-    internal var urls: [URLKind: URL] {
+    internal var urls: [URLKind: WrapAssetURLBlock] {
         get {
             return self.source[keyPath: urlsKeyPath]
         }

@@ -75,17 +75,17 @@ public struct Iconfinder: Codable {
 extension Iconfinder {
     private var identifier: String { get { return "\(id)" }}
     private var displayName: String { return "" }
-    private var urls: [URLKind: URL] {
-        var ret: [URLKind: URL] = [:]
+    private var urls: [URLKind: WrapAssetURLBlock] {
+        var ret: [URLKind: WrapAssetURLBlock] = [:]
         if let thumb = self.rasters.last, let preview = thumb.formats.first?.previewURL, let previewURL = URL(string: preview) {
-            ret[.thumb] = previewURL
+            ret[.thumb] = { $0(previewURL) }
         }
         
         if let fmt = self.vectors.first?.formats.first(where: { $0.ext == "svg"}), let downloadURL = URL(string: fmt.downloadURL) {
             
-            ret[.regular] = downloadURL
-            ret[.full] = downloadURL
-            ret[.raw] = downloadURL
+            ret[.regular] = { $0(downloadURL) }
+            ret[.full] = { $0(downloadURL) }
+            ret[.raw] = { $0(downloadURL) }
         }
         return ret
         

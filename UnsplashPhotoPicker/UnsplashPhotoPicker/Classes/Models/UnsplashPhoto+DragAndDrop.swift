@@ -9,6 +9,15 @@
 import UIKit
 
 extension UnsplashPhoto {
+    private var _urls: [URLKind: WrapAssetURLBlock] {
+        get {
+            return self.urls.reduce([:]) { (ret, url) -> [URLKind: WrapAssetURLBlock] in
+                var ret = ret
+                ret[url.key] = { $0(url.value) }
+                return ret
+            }
+        }
+    }
     var wrap: WrapAsset<UnsplashPhoto> {
         get {
             return WrapAsset<UnsplashPhoto>(source: self,
@@ -17,7 +26,7 @@ extension UnsplashPhoto {
                                         colorKeyPath: \.color,
                                         heightKeyPath: \.height,
                                         widthKeyPath: \.width,
-                                        urlsKeyPath: \.urls,
+                                        urlsKeyPath: \._urls,
                                         trackingKeyPath: \.links[.downloadLocation],
                                         headersKeyPath: nil)
         }

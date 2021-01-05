@@ -42,6 +42,7 @@ class PhotoView: UIView {
         userNameLabel.text = nil
         imageView.backgroundColor = .clear
         imageView.image = nil
+        imageView.layer.removeAllAnimations()
         imageDownloader.cancel()
     }
 
@@ -83,17 +84,12 @@ class PhotoView: UIView {
     }
     
     private func downloadImageURL<Source>(with photo: WrapAsset<Source>, maxSize: CGSize) {
-        
-        guard let regularUrl = photo.urls[.thumb] else { return }
-
-        let url = sizedImageURL(from: regularUrl, maxSize: maxSize)
         unowned let weakSelf = self
-        imageDownloader.downloadPhoto(with: photo, url: url, completion: weakSelf.showImage)
+        imageDownloader.downloadPhoto(with: photo, maxSize: maxSize, completion: weakSelf.showImage)
     }
     
     private func showImage(_ image: UIImage?, isCached: Bool) {
         guard self.imageDownloader.isCancelled == false else { return }
-
         if isCached {
             self.imageView.image = image
         } else {
@@ -102,12 +98,6 @@ class PhotoView: UIView {
                 self.imageView.image = image
             }, completion: nil)
         }
-    }
-    private func sizedImageURL(from url: URL, maxSize: CGSize) -> URL {
-        return url.appending(queryItems: [
-            URLQueryItem(name: "max-w", value: "\(maxSize.width)"),
-            URLQueryItem(name: "max-h", value: "\(maxSize.height)")
-        ])
     }
 
     // MARK: - Utility

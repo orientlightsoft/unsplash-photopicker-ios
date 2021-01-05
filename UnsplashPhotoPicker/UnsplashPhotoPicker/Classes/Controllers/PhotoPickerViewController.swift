@@ -9,7 +9,7 @@
 import UIKit
 
 protocol PhotoPickerViewControllerDelegate: class {
-    func photoPickerViewController<Source>(_ viewController: PhotoPickerViewController<Source>, didSelectPhotos photos: [WrapAsset<Source>])
+    func photoPickerViewController<Source>(_ viewController: PhotoPickerViewController<Source>, sender: AnyObject?, didSelectPhotos photos: [WrapAsset<Source>])
     func photoPickerViewControllerDidCancel<Source>(_ viewController: PhotoPickerViewController<Source>)
 }
 
@@ -282,7 +282,7 @@ open class PhotoPickerViewController<Source>: UIViewController, UISearchControll
             return mutablePhotos
         })
 
-        delegate?.photoPickerViewController(self, didSelectPhotos: selectedPhotos ?? [WrapAsset<Source>]())
+        delegate?.photoPickerViewController(self, sender: sender, didSelectPhotos: selectedPhotos ?? [WrapAsset<Source>]())
         self.trackDownloads(for: selectedPhotos ?? [WrapAsset<Source>]())
     }
 
@@ -429,13 +429,7 @@ open class PhotoPickerViewController<Source>: UIViewController, UISearchControll
     }
 
     public func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "PhotoCell", for: indexPath)
-
-        guard let dataSource = dataSource, let photoCell = cell as? PhotoCell<Source>, let photo = dataSource.item(at: indexPath.item) else { return cell }
-
-        photoCell.configure(with: photo)
-
-        return photoCell
+        return collectionView.dequeueReusableCell(withReuseIdentifier: "PhotoCell", for: indexPath)
     }
 
     public func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
@@ -449,6 +443,11 @@ open class PhotoPickerViewController<Source>: UIViewController, UISearchControll
     }
     // MARK: - UICollectionViewDelegate
     public func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+        if  let dataSource = dataSource, let photoCell = cell as? PhotoCell<Source>, let photo = dataSource.item(at: indexPath.item) {
+            photoCell.configure(with: photo)
+        }
+       
+        
         let prefetchCount = 19
         if let dataSource = dataSource, indexPath.item == dataSource.items.count - prefetchCount {
             fetchNextItems()
@@ -462,7 +461,7 @@ open class PhotoPickerViewController<Source>: UIViewController, UISearchControll
             updateTitle()
             updateDoneButtonState()
         } else {
-            delegate?.photoPickerViewController(self, didSelectPhotos: [photo])
+            delegate?.photoPickerViewController(self, sender: collectionView.cellForItem(at: indexPath),didSelectPhotos: [photo])
             self.trackDownloads(for: [photo])
         }
     }
